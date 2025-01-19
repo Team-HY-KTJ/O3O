@@ -1,0 +1,25 @@
+{
+    "name": "o3o",
+    "version": "1.0.0",
+    "description": "This is a Discord bot created by our HY-KTJ team.",
+    "main": "bot.js",
+    "scripts": {
+        "lint": "eslint . --ext .js",
+        "lint:fix": "eslint . --ext .js --fix",
+        "format": "prettier --write ."
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "discord.js": "^14.17.3",
+        "dotenv": "^16.4.7"
+    },
+    "devDependencies": {
+        "eslint": "^8.57.1",
+        "eslint-config-airbnb-base": "^15.0.0",
+        "eslint-config-prettier": "^10.0.1",
+        "eslint-plugin-import": "^2.31.0",
+        "eslint-plugin-prettier": "^5.2.3",
+        "prettier": "^3.4.2"
+    }
+}
