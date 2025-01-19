@@ -1,6 +1,7 @@
 {
     "name": "o3o",
     "version": "1.0.0",
+    "type": "module",
     "description": "This is a Discord bot created by our HY-KTJ team.",
     "main": "bot.js",
     "scripts": {
