@@ -1,5 +1,7 @@
-const { Client, GatewayIntentBits } = require('discord.js');
+import 'dotenv/config';
+import { Client, GatewayIntentBits } from 'discord.js';
 
+const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -9,13 +11,13 @@ const client = new Client({
 });
 
 client.once('ready', () => {
-    console.log('봇이 준비되었습니다!');
+    console.log('Bot is online!');
 });
 
-client.on('messageCreate', (message) => {
-    if (message.content === '안녕') {
-        message.channel.send('안녕하세요!');
-    }
+client.on('messageCreate', async (message) => {
+    if (message.author.bot) return;
+
+    if (message.content === '!ping') message.channel.send('Pong!');
 });
 
-client.login('YOUR_BOT_TOKEN');
+client.login(TOKEN);
