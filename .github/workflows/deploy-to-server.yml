@@ -1,39 +1,35 @@
 name: Deploy to Server
 
 on:
-    workflow_run:
-        workflows: ['Build and Push to DigitalOcean Registry']
-        types:
-            - completed
+    push:
+        branches:
+            - main
+            - development
 
 jobs:
     deploy:
         runs-on: ubuntu-latest
 
         steps:
-            - name: Check out repository
+            - name: Checkout repository
               uses: actions/checkout@v3
 
-            - name: Deploy to server
+            - name: Setup SSH key
               run: |
                   echo "${{ secrets.SSH_PRIVATE_KEY }}" > deploy_key.pem
                   chmod 600 deploy_key.pem
 
-                  ssh -i deploy_key.pem -o StrictHostKeyChecking=no user@your-server-ip << 'EOF'
-                    echo "Logging into DigitalOcean Registry..."
-                    echo "${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" | docker login -u "doctl" --password-stdin registry.digitalocean.com
-
+            - name: Deploy to server
+              run: |
+                  ssh -i deploy_key.pem -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} << 'EOF'
                     echo "Pulling latest image..."
-                    docker pull ${{ secrets.REGISTRY_URL }}/my-app:latest
+                    docker pull registry.digitalocean.com/o3o/my-app:latest
 
                     echo "Restarting container..."
                     docker stop my-app || true
                     docker rm my-app || true
-                    docker run -d --name my-app ${{ secrets.REGISTRY_URL }}/my-app:latest
-
-                    echo "Cleanup..."
-                    docker image prune -f
+                    docker run -d --name my-app registry.digitalocean.com/o3o/my-app:latest
                   EOF
 
-            - name: Cleanup SSH Key
+            - name: Cleanup SSH key
               run: rm -f deploy_key.pem
