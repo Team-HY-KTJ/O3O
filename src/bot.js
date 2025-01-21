@@ -18,6 +18,8 @@ client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
     if (message.content === '!ping') message.channel.send('Pong!');
+    if (message.content === '!hello')
+        message.channel.send('Hello! I am a bot O3O!');
 });
 
 client.login(TOKEN);
