@@ -18,20 +18,25 @@ jobs:
         run: |
           echo "${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" | docker login -u "doctl" --password-stdin ${{ secrets.REGISTRY_URL }}
 
-      - name: Build Docker image
+      - name: Set Image Tag
         run: |
-          # 브랜치별 태그 구분
           if [ "${{ github.ref_name }}" = "main" ]; then
-            TAG="latest"
+            echo "TAG=latest" >> $GITHUB_ENV
           else
-            TAG="dev"
+            echo "TAG=dev" >> $GITHUB_ENV
           fi
 
-          docker build -t ${{ secrets.REGISTRY_URL }}/my-app:$TAG .
+      - name: Debugging Outputs
+        run: |
+          echo "Building and pushing image to: ${{ secrets.REGISTRY_URL }}/my-app:${{ env.TAG }}"
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.REGISTRY_URL }}/my-app:${{ env.TAG }} .
 
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.REGISTRY_URL }}/my-app:$TAG
+          docker push ${{ secrets.REGISTRY_URL }}/my-app:${{ env.TAG }}
 
       - name: Logout from Registry
         run: docker logout ${{ secrets.REGISTRY_URL }}
