@@ -1,42 +1,38 @@
 name: Build and Push to DigitalOcean Registry
 
 on:
-  push:
-    branches:
-      - main
-      - development
+    push:
+        branches:
+            - main
+            - development
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
+    build-and-push:
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@v3
 
-      - name: Log in to DigitalOcean Container Registry
-        run: |
-          echo "${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" | docker login -u "doctl" --password-stdin ${{ secrets.REGISTRY_URL }}
+            - name: Log in to DigitalOcean Container Registry
+              run: |
+                  echo "${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" | docker login -u "doctl" --password-stdin ${{ secrets.REGISTRY_URL }}
 
-      - name: Set Image Tag
-        run: |
-          if [ "${{ github.ref_name }}" = "main" ]; then
-            echo "TAG=latest" >> $GITHUB_ENV
-          else
-            echo "TAG=dev" >> $GITHUB_ENV
-          fi
+            - name: Set Image Tag
+              run: |
+                  if [ "${{ github.ref_name }}" = "main" ]; then
+                    echo "TAG=latest" >> $GITHUB_ENV
+                  else
+                    echo "TAG=dev" >> $GITHUB_ENV
+                  fi
 
-      - name: Debugging Outputs
-        run: |
-          echo "Building and pushing image to: ${{ secrets.REGISTRY_URL }}/my-app:${{ env.TAG }}"
+            - name: Build Docker image
+              run: |
+                  docker build -t ${{ secrets.REGISTRY_URL }}/my-app:${{ env.TAG }} .
 
-      - name: Build Docker image
-        run: |
-          docker build -t ${{ secrets.REGISTRY_URL }}/my-app:${{ env.TAG }} .
+            - name: Push Docker image
+              run: |
+                  docker push ${{ secrets.REGISTRY_URL }}/my-app:${{ env.TAG }}
 
-      - name: Push Docker image
-        run: |
-          docker push ${{ secrets.REGISTRY_URL }}/my-app:${{ env.TAG }}
-
-      - name: Logout from Registry
-        run: docker logout ${{ secrets.REGISTRY_URL }}
+            - name: Logout from Registry
+              run: docker logout ${{ secrets.REGISTRY_URL }}
