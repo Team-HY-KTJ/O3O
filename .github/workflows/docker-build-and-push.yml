@@ -22,9 +22,16 @@ jobs:
               run: |
                   if [ "${{ github.ref_name }}" = "main" ]; then
                     echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN_MAIN }}" >> $GITHUB_ENV
+                    echo "TAG=latest" >> $GITHUB_ENV
                   else
                     echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN_DEV }}" >> $GITHUB_ENV
+                    echo "TAG=dev" >> $GITHUB_ENV
                   fi
+
+            - name: Display Environment Variables (for debugging)
+              run: |
+                  echo "Using TAG=${{ env.TAG }}"
+                  echo "Using DISCORD_BOT_TOKEN=******"  # 숨겨진 출력 처리
 
             - name: Build Docker image
               run: |
