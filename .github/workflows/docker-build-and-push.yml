@@ -12,28 +12,28 @@ jobs:
 
         steps:
             - name: Check out repository
-                uses: actions/checkout@v3
+              uses: actions/checkout@v3
 
             - name: Log in to DigitalOcean Container Registry
-                run: |
-                    echo "${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" | docker login -u "doctl" --password-stdin ${{ secrets.REGISTRY_URL }}
+              run: |
+                  echo "${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" | docker login -u "doctl" --password-stdin ${{ secrets.REGISTRY_URL }}
 
             - name: Set Environment Variables
-                run: |
-                    if [ "${{ github.ref_name }}" = "main" ]; then
-                        echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN_MAIN }}" >> $GITHUB_ENV
-                    else
-                        echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN_DEV }}" >> $GITHUB_ENV
-                    fi
+              run: |
+                  if [ "${{ github.ref_name }}" = "main" ]; then
+                    echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN_MAIN }}" >> $GITHUB_ENV
+                  else
+                    echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN_DEV }}" >> $GITHUB_ENV
+                  fi
 
             - name: Build Docker image
-                run: |
-                    docker build --build-arg DISCORD_BOT_TOKEN=${{ env.DISCORD_BOT_TOKEN }} \
-                        -t ${{ secrets.REGISTRY_URL }}/my-app:${{ env.TAG }} .
+              run: |
+                  docker build --build-arg DISCORD_BOT_TOKEN=${{ env.DISCORD_BOT_TOKEN }} \
+                    -t ${{ secrets.REGISTRY_URL }}/my-app:${{ env.TAG }} .
 
             - name: Push Docker image
-                run: |
-                    docker push ${{ secrets.REGISTRY_URL }}/my-app:${{ env.TAG }}
+              run: |
+                  docker push ${{ secrets.REGISTRY_URL }}/my-app:${{ env.TAG }}
 
             - name: Logout from Registry
-                run: docker logout ${{ secrets.REGISTRY_URL }}
+              run: docker logout ${{ secrets.REGISTRY_URL }}
