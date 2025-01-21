@@ -1,10 +1,16 @@
-name: Build and Push to DigitalOcean Registry
+name: CI/CD Pipeline
 
 on:
     push:
         branches:
             - main
             - development
+    pull_request:
+        branches:
+            - main
+            - development
+        types:
+            - closed # PR이 닫혔을 때(병합 포함)
 
 jobs:
     build-and-push:
@@ -20,7 +26,7 @@ jobs:
 
             - name: Set Environment Variables
               run: |
-                  if [ "${{ github.ref_name }}" = "main" ]; then
+                  if [ "${{ github.ref }}" == "refs/heads/main" ]; then
                     echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN_MAIN }}" >> $GITHUB_ENV
                     echo "TAG=latest" >> $GITHUB_ENV
                   else
@@ -31,7 +37,7 @@ jobs:
             - name: Display Environment Variables (for debugging)
               run: |
                   echo "Using TAG=${{ env.TAG }}"
-                  echo "Using DISCORD_BOT_TOKEN=******"  # 숨겨진 출력 처리
+                  echo "Using DISCORD_BOT_TOKEN=******"  # 보안을 위해 숨김 처리
 
             - name: Build Docker image
               run: |
@@ -44,3 +50,31 @@ jobs:
 
             - name: Logout from Registry
               run: docker logout ${{ secrets.REGISTRY_URL }}
+
+    deploy:
+        runs-on: ubuntu-latest
+        needs: build-and-push # build-and-push 작업이 완료된 후 실행
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+
+            - name: Setup SSH key
+              run: |
+                  echo "${{ secrets.SSH_PRIVATE_KEY }}" > deploy_key.pem
+                  chmod 600 deploy_key.pem
+
+            - name: Deploy to server
+              run: |
+                  ssh -i deploy_key.pem -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} << 'EOF'
+                    echo "Pulling latest image..."
+                    docker pull ${{ secrets.REGISTRY_URL }}/my-app:${{ env.TAG }}
+
+                    echo "Restarting container..."
+                    docker stop my-app || true
+                    docker rm my-app || true
+                    docker run -d --name my-app ${{ secrets.REGISTRY_URL }}/my-app:${{ env.TAG }}
+                  EOF
+
+            - name: Cleanup SSH key
+              run: rm -f deploy_key.pem
