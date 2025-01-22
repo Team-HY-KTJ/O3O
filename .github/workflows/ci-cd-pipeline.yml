@@ -63,10 +63,18 @@ jobs:
               run: |
                   echo "${{ secrets.SSH_PRIVATE_KEY }}" > deploy_key.pem
                   chmod 600 deploy_key.pem
-
-            - name: Debug Environment Variables
+            - name: Set Environment Variables for Deployment
               run: |
-                  echo "TAG value: ${{ env.TAG }}"
+                  if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+                    echo "TAG=latest" >> $GITHUB_ENV
+                  else
+                    echo "TAG=dev" >> $GITHUB_ENV
+                  fi
+
+            - name: Set Deployment Environment Variables
+              run: |
+                  echo "TAG=${{ env.TAG }}"
+                  echo "TAG=${{ env.TAG }}" >> $GITHUB_ENV
 
             - name: Deploy to server
               run: |
