@@ -64,6 +64,10 @@ jobs:
                   echo "${{ secrets.SSH_PRIVATE_KEY }}" > deploy_key.pem
                   chmod 600 deploy_key.pem
 
+            - name: Debug Environment Variables
+              run: |
+                  echo "TAG value: ${{ env.TAG }}"
+
             - name: Deploy to server
               run: |
                   ssh -i deploy_key.pem -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} << 'EOF'
