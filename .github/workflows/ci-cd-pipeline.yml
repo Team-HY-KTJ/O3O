@@ -4,11 +4,11 @@ on:
     push:
         branches:
             - main
-            - development
+            - develop
     pull_request:
         branches:
             - main
-            - development
+            - develop
         types:
             - closed # PR이 닫혔을 때(병합 포함)
 
