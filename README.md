@@ -36,6 +36,6 @@ git config --global core.editor "code --wait"
 DISCORD_TOKEN=your_discord_token_here
 ```
 
-토큰은 노션 회의록의 프로젝트 백로그 회의 2에 있으며, 두 줄 중 아래 것을 사용하여 테스트하면 됩니다.
+토큰은 노션 회의록 01/22 데일리 스크럼 5. 기타 사항에 있으며, 전체를 복사한 뒤 위 내용대로 사용하여 테스트하면 됩니다.
 
 ##
