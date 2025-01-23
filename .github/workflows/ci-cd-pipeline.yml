@@ -42,11 +42,11 @@ jobs:
             - name: Build Docker image
               run: |
                   docker build --build-arg DISCORD_BOT_TOKEN=${{ env.DISCORD_BOT_TOKEN }} \
-                    -t ${{ secrets.REGISTRY_URL }}/my-app:${{ env.TAG }} .
+                    -t ${{ secrets.REGISTRY_URL }}/o3o-bot:${{ env.TAG }} .
 
             - name: Push Docker image
               run: |
-                  docker push ${{ secrets.REGISTRY_URL }}/my-app:${{ env.TAG }}
+                  docker push ${{ secrets.REGISTRY_URL }}/o3o-bot:${{ env.TAG }}
 
             - name: Logout from Registry
               run: docker logout ${{ secrets.REGISTRY_URL }}
@@ -80,13 +80,13 @@ jobs:
               run: |
                   ssh -i deploy_key.pem -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} << 'EOF'
                     echo "Pulling latest image..."
-                    docker pull ${{ secrets.REGISTRY_URL }}/my-app:${{ env.TAG }}
+                    docker pull ${{ secrets.REGISTRY_URL }}/o3o-bot:${{ env.TAG }}
 
                     echo "Restarting container..."
-                    docker stop my-app-${{ env.TAG }} || true
-                    docker rm my-app-${{ env.TAG }} || true
-                    docker run -d --name my-app-${{ env.TAG }} \
-                      ${{ secrets.REGISTRY_URL }}/my-app:${{ env.TAG }}
+                    docker stop o3o-bot-${{ env.TAG }} || true
+                    docker rm o3o-bot-${{ env.TAG }} || true
+                    docker run -d --name o3o-bot-${{ env.TAG }} \
+                      ${{ secrets.REGISTRY_URL }}/o3o-bot:${{ env.TAG }}
                   EOF
 
             - name: Cleanup SSH key
