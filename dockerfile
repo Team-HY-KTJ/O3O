@@ -8,7 +8,9 @@ WORKDIR /app
 
 # 환경 변수 전달 (Docker build 시 전달된 값)
 ARG DISCORD_BOT_TOKEN
+ARG APPLICATION_ID
 ENV DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN
+ENV APPLICATION_ID=$APPLICATION_ID
 
 # package.json 및 package-lock.json 복사 후 의존성 설치
 COPY package*.json ./

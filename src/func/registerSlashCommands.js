@@ -18,6 +18,7 @@ function commandsAreEqual(existing, updated) {
 
 export default async function registerSlashCommands(guildId, token) {
     const appID = process.env.APPLICATION_ID; // .env에서 불러오기
+    console.log('appID:', appID);
     console.log(`Guild ${guildId}: 슬래시 커맨드 등록/갱신 시작`);
 
     try {
