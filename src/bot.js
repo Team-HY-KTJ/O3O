@@ -1,6 +1,10 @@
-/* eslint-disable prettier/prettier */
+/* eslint-disable */
 import 'dotenv/config';
-import { Client, Embed, EmbedBuilder, GatewayIntentBits, MessageFlags } from 'discord.js';
+import { Client, GatewayIntentBits } from 'discord.js';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+import path from 'path';
+import registerSlashCommands from './func/registerSlashCommands.js';
 
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const client = new Client({
@@ -13,71 +17,58 @@ const client = new Client({
 
 const userAccounts = {};
 
-const commandListEmbed = new EmbedBuilder().setColor('#5762EB').setTitle('How can I help you?')
-.addFields(
-    {name: '/help', value: 'Show all commands of O3O bot!', inline : true},
-    {name: '/hello', value: 'O3O Bot greets you and tells you the commands you can use!', inline : true},
-    {name: '/balance', value: 'Show balance for your account!', inline : true},
-);
+// __dirname 설정
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// const commandList = 
-// `
-// How can I help you?
-// \`/help : Show all commands of O3O bot!
-// /hello : O3O Bot greets you and tells you the commands you can use!
-// /balance : Show balance for your account! \`
-// `
+// 명령어 불러오기
+const commands = new Map();
+const commandFiles = fs
+    .readdirSync(path.join(__dirname, 'commands'))
+    .filter((file) => file.endsWith('.js'));
 
-client.once('ready', () => {
+commandFiles.forEach(async (file) => {
+    const filePath = `file://${path.join(__dirname, 'commands', file)}`;
+    try {
+        const command = await import(filePath);
+        if (command.default && command.default.name) {
+            commands.set(command.default.name, command.default);
+        } else {
+            console.error(
+                `Command ${file} does not have a valid export or name property.`
+            );
+        }
+    } catch (error) {
+        console.error(`Failed to load command ${file}:`, error);
+    }
+});
+
+client.once('ready', async () => {
     console.log('Bot is online!');
+    const guilds = client.guilds.cache;
+    await Promise.all(
+        guilds.map(async (guild) => {
+            await registerSlashCommands(guild.id, TOKEN);
+        })
+    );
+});
+
+client.on('guildCreate', async (guild) => {
+    await registerSlashCommands(guild.id, TOKEN);
 });
 
 client.on('interactionCreate', async (interaction) => {
-    if (interaction.isCommand()) {
-        if (interaction.commandName === 'help') {
-            await interaction.reply({embeds : [commandListEmbed]});          
-        }
-        else if (interaction.commandName === 'hello') {
-            await interaction.reply('Hello! I am a bot O3O-develop!');
-            await interaction.followUp({embeds : [commandListEmbed]});
-        }
-        else if (interaction.commandName === 'balance') {
-            const serverNickName = interaction.member.nickname || interaction.user.globalName || interaction.user.username;
-            if (userAccounts[interaction.user.id] === undefined) {
-                userAccounts[interaction.user.id] = 10000;
-                await interaction.reply(`
-                    You opened your own account!!
-\`${serverNickName}'s balance : ${userAccounts[interaction.user.id]}\`
-`);
-            }
-            else {
-                await interaction.reply(`\`${serverNickName}'s balance : ${userAccounts[interaction.user.id]}\``);
-            }
-        }
+    if (!interaction.isCommand()) return;
+
+    const command = commands.get(interaction.commandName);
+    if (!command) return;
+
+    try {
+        await command.execute(interaction, userAccounts);
+    } catch (error) {
+        console.error(error);
+        await interaction.reply('There was an error executing this command!');
     }
-})
-
-// client.on('messageCreate', async (message) => {
-//     if (message.author.bot) return;
-
-//     if (message.content === '/help') {
-//         message.channel.send({embeds : [commandListEmbed]});
-//     }
-
-//     if (message.content === '/hello') {
-//         message.channel.send('Hello! I am a bot O3O-develop!');
-//         message.channel.send({embeds : [commandListEmbed]});
-//     }
-
-//     if (message.content === '/balance') {
-//         if (userAccounts[message.member.id] === undefined) {
-//             message.channel.send('You opened your own account!!');
-//             userAccounts[message.member.id] = 10000;
-//         }
-//         else {
-//             message.channel.send(`\`${message.member.displayName}'s balance : ${userAccounts[message.member.id]}\``);
-//         }
-//     }
-// });
+});
 
 client.login(TOKEN);

@@ -28,9 +28,11 @@ jobs:
               run: |
                   if [ "${{ github.ref }}" == "refs/heads/main" ]; then
                     echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN_MAIN }}" >> $GITHUB_ENV
+                    echo "APPLICATION_ID"=${{ secrets.APPLICATION_ID_MAIN }} >> $GITHUB_ENV
                     echo "TAG=latest" >> $GITHUB_ENV
                   else
                     echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN_DEV }}" >> $GITHUB_ENV
+                    echo "APPLICATION_ID"=${{ secrets.APPLICATION_ID_DEV }} >> $GITHUB_ENV
                     echo "TAG=dev" >> $GITHUB_ENV
                   fi
 
@@ -38,10 +40,13 @@ jobs:
               run: |
                   echo "Using TAG=${{ env.TAG }}"
                   echo "Using DISCORD_BOT_TOKEN=******"  # 보안을 위해 숨김 처리
+                  echo "Using APPLICATION_ID=${{ env.APPLICATION_ID }}"
 
             - name: Build Docker image
               run: |
-                  docker build --build-arg DISCORD_BOT_TOKEN=${{ env.DISCORD_BOT_TOKEN }} \
+                  docker build \
+                    --build-arg DISCORD_BOT_TOKEN=${{ env.DISCORD_BOT_TOKEN }} \
+                    --build-arg APPLICATION_ID=${{ env.APPLICATION_ID }} \
                     -t ${{ secrets.REGISTRY_URL }}/o3o-bot:${{ env.TAG }} .
 
             - name: Push Docker image
@@ -63,6 +68,7 @@ jobs:
               run: |
                   echo "${{ secrets.SSH_PRIVATE_KEY }}" > deploy_key.pem
                   chmod 600 deploy_key.pem
+
             - name: Set Environment Variables for Deployment
               run: |
                   if [ "${{ github.ref }}" == "refs/heads/main" ]; then
