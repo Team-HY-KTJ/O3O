@@ -103,6 +103,9 @@ jobs:
                       -e DISCORD_BOT_TOKEN=\$DISCORD_BOT_TOKEN \
                       -e APPLICATION_ID=\$APPLICATION_ID \
                       ${{ secrets.REGISTRY_URL }}/o3o-bot:${{ env.TAG }}
+                    
+                    docker network connect o3o_network o3o-bot-${{ env.TAG }}
+                    echo "Done!"
                   EOF
 
             - name: Cleanup SSH key
