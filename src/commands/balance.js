@@ -22,8 +22,9 @@ export default {
 
             // 응답 결과에 따른 처리
             const responseMessage = data.newlyAdded
-                ? `새로운 계정을 만들었습니다! 초기 잔액은 ${data.balance}입니다. (User ID: ${data.userid})`
-                : `현재 잔액은 ${data.balance}입니다. (User ID: ${data.userid})`;
+                ? `${data.userid}님의 계좌가 존재하지 않아, 방금 생성했습니다! 
+                \`${data.userid}님의 초기 잔액은 ${data.balance}입니다.\``
+                : `\`${data.userid}님의 현재 잔액은 ${data.balance}입니다.\``;
 
             await interaction.reply(responseMessage);
         } catch (error) {
