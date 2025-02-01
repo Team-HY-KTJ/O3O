@@ -12,6 +12,18 @@ const commands = [
         name: 'balance',
         description: 'Show balance for your account!',
     },
+    {
+        name: 'oddeven',
+        description: 'Play oddEven gamble!',
+        options: [
+            {
+                name: 'bet_amount',
+                type: 4,
+                description: '베팅할 금액',
+                required: true,
+            },
+        ],
+    },
 ];
 
 export default commands;
