@@ -24,11 +24,11 @@ export default {
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('odd')
-                .setLabel('O')
+                .setLabel('홀')
                 .setStyle(ButtonStyle.Success),
             new ButtonBuilder()
                 .setCustomId('even') 
-                .setLabel('X')
+                .setLabel('짝')
                 .setStyle(ButtonStyle.Danger)
         );
 
@@ -63,7 +63,7 @@ export default {
             // await balanceUpdate(interaction.user.id,interaction.guildId,balanceChange,'홀짝 도박');
             const messageEmbed = new EmbedBuilder().setColor(embedColor).setTitle(`주사위 결과: **${randomDice}**`)
             .setDescription(message)
-            // .setFooter()   추후 사용자의 잔액 표시
+            // .setFooter({text: , iconURL: interaction.user.displayAvatarURL()})   추후 사용자의 잔액 표시
             await btnInteraction.reply({embeds : [messageEmbed]});
             
             collector.stop();
