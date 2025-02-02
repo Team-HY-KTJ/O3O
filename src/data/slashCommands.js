@@ -15,12 +15,30 @@ const commands = [
     {
         name: 'oddeven',
         description: 'Play oddEven gamble!',
+        name_localizations: {
+            ko: '홀짝도박'
+        },
+        description_localizations: {
+            ko: '홀짝 도박을 플레이합니다.'
+        },
         options: [
             {
-                name: 'bet_amount',
+                name: '배팅금액',
                 type: 4,
-                description: '베팅할 금액',
+                description: '배팅할 금액',
                 required: true,
+            },
+        ],
+    },
+    {
+        name: '홀짝도박',
+        description: '홀짝 도박을 플레이합니다.',
+        options: [
+            {
+                name: '배팅금액',
+                type: 4,
+                description: '배팅할 금액',
+                require: true,
             },
         ],
     },
