@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from 'discord.js';
 import balanceUpdate from '../utils/balanceUpdate.js';
+import getBalance from '../utils/getBalance.js';
 
 export default {
     name: 'oddeven',
@@ -18,6 +19,10 @@ export default {
 
         if (betAmount <= 0) {
             await interaction.reply('배팅 금액은 0보다 커야합니다.');
+            return;
+        }
+        if (getBalance((interaction.user.id,interaction.guildId) < betAmount)) {
+            await interaction.reply('잔액이 부족해요.. ㅠㅠ')
             return;
         }
 
