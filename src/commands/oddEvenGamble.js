@@ -17,12 +17,16 @@ export default {
     execute: async (interaction) => {
         const betAmount = interaction.options.getInteger('bet_amount');
 
+        const userBalance = getBalance(interaction.user.id,interaction.guildId);
+
+        await userBalance;
+
         if (betAmount <= 0) {
             await interaction.reply('배팅 금액은 0보다 커야합니다.');
             return;
         }
-        if (getBalance((interaction.user.id,interaction.guildId) < betAmount)) {
-            await interaction.reply('잔액이 부족해요.. ㅠㅠ')
+        if (userBalance < betAmount) {
+            await interaction.reply('잔액이 부족해요.. ㅠㅠ');
             return;
         }
 
@@ -65,6 +69,7 @@ export default {
                 message = `저런.. ${betAmount}원을 잃으셨습니다. 한번 더 ㄱ?`;
             }
 
+            console.log(embedColor);
             // await balanceUpdate(interaction.user.id,interaction.guildId,balanceChange,'홀짝 도박');
             const messageEmbed = new EmbedBuilder().setColor(embedColor).setTitle(`주사위 결과: **${randomDice}**`)
             .setDescription(message)

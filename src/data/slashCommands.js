@@ -24,18 +24,9 @@ const commands = [
         options: [
             {
                 name: 'bet_amount',
-                type: 4,
-                description: '배팅할 금액',
-                required: true,
-            },
-        ],
-    },
-    {
-        name: '홀짝도박',
-        description: '홀짝 도박을 플레이합니다.',
-        options: [
-            {
-                name: '배팅금액',
+                name_localizations: {
+                    ko: '배팅금액'
+                },
                 type: 4,
                 description: '배팅할 금액',
                 required: true,
@@ -48,6 +39,9 @@ const commands = [
         options: [
             {
                 name: 'bet_amount',
+                name_localizations: {
+                    ko: '배팅금액'
+                },
                 type: 4,
                 description: '배팅할 금액',
                 required: true,

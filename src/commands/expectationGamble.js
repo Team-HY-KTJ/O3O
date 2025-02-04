@@ -1,12 +1,12 @@
-/* eslint-disable prettier/prettier */
-import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from '@discordjs/builders';
+/* eslint-disable */
+import { ActionRowBuilder, ButtonBuilder/*, EmbedBuilder*/ } from '@discordjs/builders';
 import balanceUpdate from '../utils/balanceUpdate.js';
 import getBalance from '../utils/getBalance.js';
-import { ButtonStyle } from 'discord.js';
+import { ButtonStyle, EmbedBuilder } from 'discord.js';
 
 export default {
     name: '시간예측도박',
-    description: '마음속으로 초를 세세요! 지금이 제시된 시간같다면 버튼을 누르세요!',
+    description: '마음속으로 초를 세세요! 제시된 시간만큼 지난 것 같다면 버튼을 누르세요!',
     options: [
         {
             name: 'bet_amount',
@@ -19,16 +19,18 @@ export default {
     execute: async (interaction) => {
         const betAmount = interaction.options.getInteger('bet_amount');
 
+        const userBalance = getBalance(interaction.user.id,interaction.guildId);
+        
         if (betAmount <= 0) {
             await interaction.reply('배팅 금액은 0보다 커야 합니다.');
             return;
         }
-        if (getBalance((interaction.user.id,interaction.guildId) < betAmount)) {
+        if (await userBalance < betAmount) {
             await interaction.reply('잔액이 부족해요.. ㅠㅠ')
             return;
         }
 
-        const randomTime = Math.floor(Math.random * 8) + 3;
+        const randomTime = Math.floor(Math.random() * 8) + 3;
 
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
@@ -38,7 +40,7 @@ export default {
         );
         
         const messageEmbed = new EmbedBuilder().setTitle('두구두구 시간예측')
-        .setDescription(`**${randomTime}**초 후에 버튼을 눌러보세요!`);
+        .setDescription(`**${randomTime}**초 후에 버튼을 눌러보세요! 차이가 0.5초 이내라면 돈을 벌어요!`);
 
         const startTime = Date.now();
                 
@@ -66,14 +68,11 @@ export default {
                 message = `실패... 실제 시간: **${timeResult.toFixed(2)}초** (차이: ${difference.toFixed(2)}초)\n ${betAmount}원을 잃으셨습니다.`;
             }
 
-            await balanceUpdate(interaction.user.id, interaction.guildId, balanceChange, '시간 예측 도박');
-
-            const resultEmbed = new EmbedBuilder()
-            .setColor(embedColor)
-            .setTitle(`결과: ${timeResult.toFixed(2)}초`)
+            // await balanceUpdate(interaction.user.id, interaction.guildId, balanceChange, '시간 예측 도박');
+            const resultEmbed = new EmbedBuilder().setColor(embedColor).setTitle(`결과: ${timeResult.toFixed(2)}초`)
             .setDescription(message);
 
-            await interaction.update({embeds: [resultEmbed]});
+            await interaction.editReply({embeds: [resultEmbed], components: []});
 
             collector.stop();
         })
