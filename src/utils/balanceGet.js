@@ -1,36 +1,27 @@
+// balance 확인용 모듈화 (/balance 명령어 외 사용 목적)
 import axios from 'axios';
 
 const API_BASE_URL = 'http://o3o-backend:3000';
 
 /**
- * 잔고 수정 API 요청 함수
+ * 잔고 확인인 API 요청 함수
  *
  * @param {number} userid - 사용자 ID
  * @param {number} serverid - 서버 ID
- * @param {number} amount - 수정할 금액 (출금은 음수, 입금은 양수)
- * @param {string} reason - 수정 사유 (로그 기록용. 걍 비워도 됨)
  *
  * @returns {Promise<Object>} - API 응답 데이터
- *
- *   응답 예시 (성공 시)
- *  {
- *      "userid": 1,
- *      "balance": 1000
- *  }
- *
- *  응답 예시 (실패 시)
- *  {
- *      "error": "유저를 찾을 수 없습니다. /balance 명령어를 통해 잔고를 먼저 초기화 해주세요."
- *  }
+ *   {
+ *     userid: number,
+ *     balance: number,
+ *     newlyAdded: boolean // 새로 계좌를 생성했다면 true, 이미 있었다면 false
+ *   }
  *
  */
-async function updateBalance(userid, serverid, amount, reason) {
+async function getBalance(userid, serverid) {
     try {
-        const response = await axios.post(`${API_BASE_URL}/balance/update`, {
+        const response = await axios.get(`${API_BASE_URL}/balance`, {
             userid,
             serverid,
-            amount,
-            reason,
         });
         return response.data;
     } catch (error) {
@@ -44,4 +35,4 @@ async function updateBalance(userid, serverid, amount, reason) {
     }
 }
 
-export default updateBalance;
+export default getBalance;
