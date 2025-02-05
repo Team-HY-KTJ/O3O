@@ -19,6 +19,8 @@ jobs:
         steps:
             - name: Check out repository
               uses: actions/checkout@v3
+              with:
+                  ref: ${{ github.ref }}
 
             - name: Log in to DigitalOcean Container Registry
               run: |
@@ -28,9 +30,11 @@ jobs:
               run: |
                   if [ "${{ github.ref }}" == "refs/heads/main" ]; then
                     echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN_MAIN }}" >> $GITHUB_ENV
+                    echo "APPLICATION_ID=${{ secrets.APPLICATION_ID_MAIN }}" >> $GITHUB_ENV
                     echo "TAG=latest" >> $GITHUB_ENV
                   else
                     echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN_DEV }}" >> $GITHUB_ENV
+                    echo "APPLICATION_ID=${{ secrets.APPLICATION_ID_DEV }}" >> $GITHUB_ENV
                     echo "TAG=dev" >> $GITHUB_ENV
                   fi
 
@@ -38,10 +42,13 @@ jobs:
               run: |
                   echo "Using TAG=${{ env.TAG }}"
                   echo "Using DISCORD_BOT_TOKEN=******"  # 보안을 위해 숨김 처리
+                  echo "Using APPLICATION_ID=${{ env.APPLICATION_ID }}"
 
             - name: Build Docker image
               run: |
-                  docker build --build-arg DISCORD_BOT_TOKEN=${{ env.DISCORD_BOT_TOKEN }} \
+                  docker build \
+                    --build-arg DISCORD_BOT_TOKEN=${{ env.DISCORD_BOT_TOKEN }} \
+                    --build-arg APPLICATION_ID=${{ env.APPLICATION_ID }} \
                     -t ${{ secrets.REGISTRY_URL }}/o3o-bot:${{ env.TAG }} .
 
             - name: Push Docker image
@@ -58,11 +65,14 @@ jobs:
         steps:
             - name: Checkout repository
               uses: actions/checkout@v3
+              with:
+                  ref: ${{ github.ref }}
 
             - name: Setup SSH key
               run: |
                   echo "${{ secrets.SSH_PRIVATE_KEY }}" > deploy_key.pem
                   chmod 600 deploy_key.pem
+
             - name: Set Environment Variables for Deployment
               run: |
                   if [ "${{ github.ref }}" == "refs/heads/main" ]; then
@@ -78,15 +88,24 @@ jobs:
 
             - name: Deploy to server
               run: |
-                  ssh -i deploy_key.pem -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} << 'EOF'
+                  ssh -i deploy_key.pem -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} << EOF
                     echo "Pulling latest image..."
+                    echo "${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" | docker login -u "doctl" --password-stdin ${{ secrets.REGISTRY_URL }}
+                    docker stop o3o-bot-${{ env.TAG }} || true
+                    docker rm o3o-bot-${{ env.TAG }} || true
+                    docker rmi ${{ secrets.REGISTRY_URL }}/o3o-bot:${{ env.TAG }}
                     docker pull ${{ secrets.REGISTRY_URL }}/o3o-bot:${{ env.TAG }}
 
                     echo "Restarting container..."
-                    docker stop o3o-bot-${{ env.TAG }} || true
-                    docker rm o3o-bot-${{ env.TAG }} || true
+                    export DISCORD_BOT_TOKEN="${{ secrets.DISCORD_BOT_TOKEN_DEV }}"
+                    export APPLICATION_ID="${{ secrets.APPLICATION_ID_DEV }}"
                     docker run -d --name o3o-bot-${{ env.TAG }} \
+                      -e DISCORD_BOT_TOKEN=\$DISCORD_BOT_TOKEN \
+                      -e APPLICATION_ID=\$APPLICATION_ID \
                       ${{ secrets.REGISTRY_URL }}/o3o-bot:${{ env.TAG }}
+                    
+                    docker network connect o3o_network o3o-bot-${{ env.TAG }}
+                    echo "Done!"
                   EOF
 
             - name: Cleanup SSH key
