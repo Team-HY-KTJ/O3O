@@ -23,7 +23,7 @@ export default {
     execute: async (interaction) => {
         const betAmount = interaction.options.getInteger('bet_amount');
 
-        const userBalance = getBalance(
+        const { balance: userBalance } = await getBalance(
             interaction.user.id,
             interaction.guildId
         );

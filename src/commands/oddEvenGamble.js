@@ -22,12 +22,10 @@ export default {
     execute: async (interaction) => {
         const betAmount = interaction.options.getInteger('bet_amount');
 
-        const userBalance = getBalance(
+        const { balance: userBalance } = await getBalance(
             interaction.user.id,
             interaction.guildId
         );
-
-        await userBalance;
 
         if (betAmount <= 0) {
             await interaction.reply('배팅 금액은 0보다 커야합니다.');
