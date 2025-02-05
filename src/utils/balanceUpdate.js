@@ -8,7 +8,7 @@ const API_BASE_URL = 'http://o3o-backend:3000';
  * @param {number} userid - 사용자 ID
  * @param {number} serverid - 서버 ID
  * @param {number} amount - 수정할 금액 (출금은 음수, 입금은 양수)
- * @param {string} reason - 수정 사유 (로그 기록용. 걍 비워도 됨됨)
+ * @param {string} reason - 수정 사유 (로그 기록용. 걍 비워도 됨)
  * @returns {Promise<Object>} - API 응답 데이터
  *
  * 비동기 처리 해줘야 되고, 파일 위치 잘 잡아주기.
