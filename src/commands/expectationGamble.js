@@ -28,6 +28,8 @@ export default {
             interaction.guildId
         );
 
+        console.log(betAmount, userBalance);
+
         if (betAmount <= 0) {
             await interaction.reply('배팅 금액은 0보다 커야 합니다.');
             return;

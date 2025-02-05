@@ -5,6 +5,9 @@ export default {
     name: 'hello',
     description: 'O3O Bot greets you and tells you the commands you can use!',
     execute: async (interaction) => {
-        await interaction.reply('Hello! I am a bot O3O-develop!');
+        const userMention = `<@${interaction.user.id}>`;
+        await interaction.reply(
+            `안녕하세요 ${userMention}! 나는 O3O 봇입니다!`
+        );
     },
 };
