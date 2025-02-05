@@ -1,5 +1,10 @@
 /* eslint-disable prettier/prettier */
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from 'discord.js';
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    EmbedBuilder,
+} from 'discord.js';
 import balanceUpdate from '../utils/balanceUpdate.js';
 import getBalance from '../utils/getBalance.js';
 
@@ -17,7 +22,10 @@ export default {
     execute: async (interaction) => {
         const betAmount = interaction.options.getInteger('bet_amount');
 
-        const userBalance = getBalance(interaction.user.id,interaction.guildId);
+        const userBalance = getBalance(
+            interaction.user.id,
+            interaction.guildId
+        );
 
         await userBalance;
 
@@ -36,24 +44,28 @@ export default {
                 .setLabel('홀')
                 .setStyle(ButtonStyle.Success),
             new ButtonBuilder()
-                .setCustomId('even') 
+                .setCustomId('even')
                 .setLabel('짝')
                 .setStyle(ButtonStyle.Danger)
         );
 
-        const isSameUser = (btnInteraction) => btnInteraction.user.id === interaction.user.id;
+        const isSameUser = (btnInteraction) =>
+            btnInteraction.user.id === interaction.user.id;
         await interaction.reply({
             content: `${betAmount}원을 걸었습니다! 홀(O) 또는 짝(X)을 선택하세요!`,
             components: [row],
         });
         const replyMessage = await interaction.fetchReply();
 
-        const collector = replyMessage.createMessageComponentCollector({filter: isSameUser, time: 5000});
+        const collector = replyMessage.createMessageComponentCollector({
+            filter: isSameUser,
+            time: 5000,
+        });
 
         collector.on('collect', async (btnInteraction) => {
-            const userChoice = btnInteraction.customId; 
+            const userChoice = btnInteraction.customId;
             const randomDice = Math.floor(Math.random() * 6) + 1;
-            const result = (randomDice % 2 === 0) ? 'even' : 'odd';
+            const result = randomDice % 2 === 0 ? 'even' : 'odd';
 
             let message;
             let balanceChange;
@@ -70,12 +82,19 @@ export default {
             }
 
             console.log(embedColor);
-            // await balanceUpdate(interaction.user.id,interaction.guildId,balanceChange,'홀짝 도박');
-            const messageEmbed = new EmbedBuilder().setColor(embedColor).setTitle(`주사위 결과: **${randomDice}**`)
-            .setDescription(message)
+            await balanceUpdate(
+                interaction.user.id,
+                interaction.guildId,
+                balanceChange,
+                '홀짝 도박'
+            );
+            const messageEmbed = new EmbedBuilder()
+                .setColor(embedColor)
+                .setTitle(`주사위 결과: **${randomDice}**`)
+                .setDescription(message);
             // .setFooter({text: , iconURL: interaction.user.displayAvatarURL()})   추후 사용자의 잔액 표시
-            await btnInteraction.reply({embeds : [messageEmbed]});
-            
+            await btnInteraction.reply({ embeds: [messageEmbed] });
+
             collector.stop();
         });
 
