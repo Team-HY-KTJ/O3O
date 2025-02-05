@@ -20,8 +20,11 @@ const API_BASE_URL = 'http://o3o-backend:3000';
 async function getBalance(userid, serverid) {
     try {
         const response = await axios.get(`${API_BASE_URL}/balance`, {
-            userid,
-            serverid,
+            params: {
+                userid,
+                serverid,
+            },
+            timeout: 5000, // 요청 제한 시간 설정 (5초)
         });
         return response.data;
     } catch (error) {
