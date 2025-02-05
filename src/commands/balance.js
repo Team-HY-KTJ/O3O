@@ -24,8 +24,8 @@ export default {
             const userMention = `<@${interaction.user.id}>`;
             const responseMessage = data.newlyAdded
                 ? `${userMention}님의 계좌가 존재하지 않아, 방금 생성했습니다! 
-                \`${userMention}님의 초기 잔액은 ${data.balance}입니다.\``
-                : `\`${userMention}님의 현재 잔액은 ${data.balance}입니다.\``;
+                ${userMention}님의 초기 잔액은 ${data.balance}입니다.`
+                : `${userMention}님의 현재 잔액은 ${data.balance}입니다.`;
 
             await interaction.reply(responseMessage);
         } catch (error) {
