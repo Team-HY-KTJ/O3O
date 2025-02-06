@@ -3,7 +3,7 @@ import {
     ActionRowBuilder,
     ButtonBuilder /*, EmbedBuilder*/,
 } from '@discordjs/builders';
-import balanceUpdate from '../utils/balanceUpdate.js';
+import balanceUpdate from '../utils/updateBalance.js';
 import getBalance from '../utils/getBalance.js';
 import { ButtonStyle, EmbedBuilder } from 'discord.js';
 

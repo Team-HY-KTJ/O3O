@@ -5,7 +5,7 @@ import {
     ButtonStyle,
     EmbedBuilder,
 } from 'discord.js';
-import balanceUpdate from '../utils/balanceUpdate.js';
+import balanceUpdate from '../utils/updateBalance.js';
 import getBalance from '../utils/getBalance.js';
 
 export default {
