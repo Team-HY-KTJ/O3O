@@ -5,10 +5,36 @@ import commands from '../data/slashCommands.js';
 
 function commandsAreEqual(existing, updated) {
     if (existing.length !== updated.length) return false;
+
     for (let i = 0; i < existing.length; i++) {
+        const existingCommand = existing[i];
+        const updatedCommand = updated[i];
+
         if (
-            existing[i].name !== updated[i].name ||
-            existing[i].description !== updated[i].description
+            existingCommand.name !== updatedCommand.name ||
+            existingCommand.description !== updatedCommand.description ||
+            !optionsAreEqual(existingCommand.options, updatedCommand.options)
+        ) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function optionsAreEqual(existingOptions, updatedOptions) {
+    if (!existingOptions && !updatedOptions) return true;
+    if (!existingOptions || !updatedOptions) return false;
+    if (existingOptions.length !== updatedOptions.length) return false;
+
+    for (let i = 0; i < existingOptions.length; i++) {
+        const existingOption = existingOptions[i];
+        const updatedOption = updatedOptions[i];
+
+        if (
+            existingOption.name !== updatedOption.name ||
+            existingOption.description !== updatedOption.description ||
+            existingOption.type !== updatedOption.type ||
+            existingOption.required !== updatedOption.required
         ) {
             return false;
         }
